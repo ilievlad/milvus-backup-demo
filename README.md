@@ -83,6 +83,4 @@ milvus-backup restore -n demo-backup
 Using [Attu](https://github.com/zilliztech/attu?tab=readme-ov-file#install-desktop-application), verify the collection exists. The collection needs to be loaded before we can query it.
 
 
-> NOTE:
-> A vector index is not created by default. You can create it in Attu.
-
+> **_NOTE_**: A vector index is not created by default. You can create it in Attu.
