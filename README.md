@@ -76,14 +76,13 @@ kubectl scale deployment my-release-milvus-standalone --replicas=1
 Then we can restore the backup:
 
 ```bash
-milvus-backup restore -n demobackup
+milvus-backup restore -n demobackup --restore_index
 ```
 
 ## Verify the Restore
 
 Using [Attu](https://github.com/zilliztech/attu?tab=readme-ov-file#install-desktop-application), verify the collection exists. The collection needs to be loaded before we can query it.
 
-> **_NOTE_**: A vector index is not created by default. You can create it in Attu.
 
 ## Cleanup
 
