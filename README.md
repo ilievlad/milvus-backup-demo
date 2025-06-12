@@ -12,15 +12,16 @@ brew install zilliztech/tap/milvus-backup
 
 ```bash
 kind create cluster --name milvus-backup-demo --config kind-config.yaml
-export KUBECONFIG="$(kind get kubeconfig-path --name="milvus-backup-demo")" 
+kind get kubeconfig --name="milvus-backup-demo" > ~/.kube/milvus-backup-demo.yaml 
+export KUBECONFIG=~/.kube/milvus-backup-demo.yaml
 ```
 
 ## Install Milvus-Operator
 
 ```bash
-helm repo add milvus https://milvus-io.github.io/milvus-helm
-helm repo update
-helm install milvus-operator milvus/milvus-operator --namespace milvus-operator --create-namespace
+helm repo add milvus-operator https://zilliztech.github.io/milvus-operator/
+helm repo update milvus-operator
+helm -n milvus-operator upgrade --install --create-namespace milvus-operator milvus-operator/milvus-operator
 ```
 
 ## Install Milvus
@@ -32,9 +33,9 @@ kubectl apply -f milvus.yaml
 Wait for Milvus to be ready then port-forward the service:
 
 ```bash
-kubectl port-forward svc/milvus-standalone 19530:19530
-kubectl port-forward svc/milvus-standalone 9091:9091
-
+kubectl port-forward svc/my-release-milvus 19530:19530&
+kubectl port-forward svc/my-release-milvus 9091:9091&
+kubectl port-forward svc/my-release-minio 9000:9000&
 ```
 
 ## Create collection and populate with data
@@ -49,7 +50,7 @@ python populate.py
 ## Create backup
 
 ```bash
-milvus-backup create -c demo_collection -n demo-backup
+milvus-backup create -c demo_collection -n demobackup
 ```
 
 
@@ -58,8 +59,8 @@ milvus-backup create -c demo_collection -n demo-backup
 To restore the backup we should delete etcd storage and scale milvus to 0. We need to keep minio, as the backup is stored there.
 
 ```bash
-kubectl delete pvc data-my-release-etcd-0
 kubectl scale statefulset my-release-etcd --replicas=0
+kubectl delete pvc data-my-release-etcd-0
 kubectl scale deployment milvus-operator -n milvus-operator --replicas=0
 kubectl scale deployment my-release-milvus-standalone --replicas=0
 ```
@@ -75,7 +76,7 @@ kubectl scale deployment my-release-milvus-standalone --replicas=1
 Then we can restore the backup:
 
 ```bash
-milvus-backup restore -n demo-backup
+milvus-backup restore -n demobackup
 ```
 
 ## Verify the Restore
